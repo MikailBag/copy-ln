@@ -13,7 +13,6 @@ struct Options {
 
 fn ensure_dir(file: &Path) {
     let dir = file.parent().unwrap();
-    dbg!(dir);
     match fs::create_dir_all(dir) {
         Ok(_) => {}
         Err(err) => match err.kind() {
@@ -24,20 +23,16 @@ fn ensure_dir(file: &Path) {
 }
 
 fn process(file: &Path, prefix: &Path) {
-    dbg!(file, prefix);
     let is_symlink = fs::metadata(file).unwrap().file_type().is_symlink();
-    dbg!(is_symlink);
     if !is_symlink {
         let mut dest = prefix.to_owned();
         dest.push(file.strip_prefix(PathBuf::from("/")).unwrap());
-        dbg!(&file, &dest);
         ensure_dir(&dest);
         fs::copy(file, dest).unwrap();
         return;
     }
     let target = file.read_link().unwrap();
     let mut target_full = prefix.to_path_buf();
-    dbg!(&target, &target_full);
     target_full.push(target);
     let symlink_path = prefix.join(file);
     let symlink_target = prefix.join(&target_full);
