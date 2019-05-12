@@ -27,6 +27,7 @@ fn copy_recurse(src: &Path, dest: &Path) {
     let copy_options = dir::CopyOptions::new();
 
     let src = vec![src];
+    let dest = dest.parent().unwrap();
     copy_items(&src, dest, &copy_options).expect(&format!("couldn't copy {:?} to {:?} recursively", &src[0], dest));
 }
 
