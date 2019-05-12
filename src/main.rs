@@ -22,13 +22,21 @@ fn ensure_dir(file: &Path) {
     }
 }
 
+fn copy_recurse(src: &Path, dest: &Path) {
+    use fs_extra::{dir, copy_items};
+    let copy_options = dir::CopyOptions::new();
+
+    let src = vec![src];
+    copy_items(&src, dest, &copy_options).expect(&format!("couldn't copy {:?} to {:?} recursively", &src[0], dest));
+}
+
 fn process(file: &Path, prefix: &Path) {
     let is_symlink = fs::metadata(file).expect(&format!("couldn't get metadata on {:?}", file)).file_type().is_symlink();
     if !is_symlink {
         let mut dest = prefix.to_owned();
         dest.push(file.strip_prefix(PathBuf::from("/")).unwrap());
         ensure_dir(&dest);
-        fs::copy(&file, &dest).expect(&format!("couldn't copy {:?} to {:?}", &file, &dest));
+        copy_recurse(file, &dest);
         return;
     }
     let target = file.read_link().expect(&format!("couldn't read symlink {:?} target", &file));
