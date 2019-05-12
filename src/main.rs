@@ -17,26 +17,26 @@ fn ensure_dir(file: &Path) {
         Ok(_) => {}
         Err(err) => match err.kind() {
             std::io::ErrorKind::AlreadyExists => {}
-            _ => Err(err).unwrap(),
+            _ => panic!("couldn't create directory {:?}: {:?}", dir, err),
         }
     }
 }
 
 fn process(file: &Path, prefix: &Path) {
-    let is_symlink = fs::metadata(file).unwrap().file_type().is_symlink();
+    let is_symlink = fs::metadata(file).expect(&format!("couldn't get metadata on {:?}", file)).file_type().is_symlink();
     if !is_symlink {
         let mut dest = prefix.to_owned();
         dest.push(file.strip_prefix(PathBuf::from("/")).unwrap());
         ensure_dir(&dest);
-        fs::copy(file, dest).unwrap();
+        fs::copy(&file, &dest).expect(&format!("couldn't copy {:?} to {:?}", &file, &dest));
         return;
     }
-    let target = file.read_link().unwrap();
+    let target = file.read_link().expect(&format!("couldn't read symlink {:?} target", &file));
     let mut target_full = prefix.to_path_buf();
     target_full.push(target);
     let symlink_path = prefix.join(file);
     let symlink_target = prefix.join(&target_full);
-    std::os::unix::fs::symlink(symlink_path, symlink_target).unwrap();
+    std::os::unix::fs::symlink(&symlink_path, &symlink_target).expect(&format!("couldn't create symlink {:?} to {:?}", &symlink_path, &symlink_target));
     process(&target_full, prefix);
 }
 
