@@ -42,6 +42,9 @@ fn process(file: &Path, prefix: &Path) {
 
 fn main() {
     let opt: Options = Options::from_args();
+    if opt.file.is_empty() {
+        eprintln!("warning: no files to copy specified")
+    }
     for f in &opt.file {
         process(f, &opt.prefix);
     }
