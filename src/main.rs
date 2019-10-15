@@ -11,8 +11,6 @@ struct Options {
     skip_existing: bool,
 }
 
-
-
 fn main() {
     let opt: Options = Options::from_args();
     if opt.file.is_empty() {
