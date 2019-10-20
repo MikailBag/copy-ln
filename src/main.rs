@@ -17,6 +17,8 @@ fn main() {
         eprintln!("warning: no files to copy specified")
     }
     for f in &opt.file {
-        copy_ln::copy(f, &opt.prefix, opt.skip_existing);
+        if let Err(e) = copy_ln::copy(f, &opt.prefix, opt.skip_existing) {
+            eprintln!("{:?}", e);
+        }
     }
 }

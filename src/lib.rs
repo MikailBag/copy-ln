@@ -66,6 +66,6 @@ fn process(file: &Path, prefix: &Path, skip_exist: bool) -> anyhow::Result<()> {
     process(&target_full, prefix, skip_exist)
 }
 
-pub fn copy(prefix: &Path, file: &Path, skip_existing: bool) {
-    process(file, prefix, skip_existing);
+pub fn copy(prefix: &Path, file: &Path, skip_existing: bool) -> anyhow::Result<()> {
+    process(file, prefix, skip_existing)
 }
