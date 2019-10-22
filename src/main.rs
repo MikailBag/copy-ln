@@ -3,12 +3,15 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 #[derive(StructOpt)]
 struct Options {
-    #[structopt(long = "prefix", short = "p")]
+    #[structopt(long, short = "p")]
     prefix: PathBuf,
-    #[structopt(long = "file", short = "f")]
+    #[structopt(long, short = "f")]
     file: Vec<PathBuf>,
-    #[structopt(long = "skip-exist", short = "s")]
-    skip_existing: bool,
+    #[structopt(long, short = "s")]
+    skip_exist: bool,
+    /// Treat symlinks as regular files
+    #[structopt(long, short = "l")]
+    ignore_symlinks: bool,
 }
 
 fn main() {
@@ -17,7 +20,7 @@ fn main() {
         eprintln!("warning: no files to copy specified")
     }
     for f in &opt.file {
-        if let Err(e) = copy_ln::copy(f, &opt.prefix, opt.skip_existing) {
+        if let Err(e) = copy_ln::copy(&opt.prefix, f, opt.skip_exist, opt.ignore_symlinks) {
             eprintln!("{:?}", e);
         }
     }

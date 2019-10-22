@@ -30,12 +30,12 @@ fn copy_recurse(src: &Path, dest: &Path, skip_exist: bool) -> anyhow::Result<()>
         .map(drop)
 }
 
-fn process(file: &Path, prefix: &Path, skip_exist: bool) -> anyhow::Result<()> {
-    let is_symlink = fs::metadata(file)
-        .with_context(|| format!("couldn't get metadata on {:?}", file))?
-        .file_type()
-        .is_symlink();
-    if !is_symlink {
+fn process(file: &Path, prefix: &Path, skip_exist: bool, ignore_symlinks: bool) -> anyhow::Result<()> {
+    let file_metadata = fs::metadata(file).with_context(|| format!("failed to stat {}", file.display()))?;
+    let file_type = file_metadata.file_type();
+    let is_symlink = file_type.is_symlink();
+
+    if !is_symlink || ignore_symlinks {
         let mut dest = prefix.to_owned();
         dest.push(file.strip_prefix(PathBuf::from("/")).unwrap());
         ensure_dir(&dest).context("failed to create dir")?;
@@ -63,9 +63,9 @@ fn process(file: &Path, prefix: &Path, skip_exist: bool) -> anyhow::Result<()> {
             }
         },
     }
-    process(&target_full, prefix, skip_exist)
+    process(&target_full, prefix, skip_exist, ignore_symlinks)
 }
 
-pub fn copy(prefix: &Path, file: &Path, skip_existing: bool) -> anyhow::Result<()> {
-    process(file, prefix, skip_existing)
+pub fn copy(prefix: &Path, file: &Path, skip_existing: bool, ignore_symlinks: bool) -> anyhow::Result<()> {
+    process(file, prefix, skip_existing, ignore_symlinks)
 }
